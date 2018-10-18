@@ -10,8 +10,12 @@ namespace RogueLike.Data.Entities
 {
     public class Entity
     {
-        public List<Component> Components { get; set; }
+        public Dictionary<string,Component> Components { get; set; }
 
+        public void AddComponent(Component component)
+        {
+            Components.Add(component.GetType().Name, component);
+        }
         public bool HasComponent(Type typeOfComponent)
         {
             return HasComponent(typeOfComponent.Name);
@@ -19,7 +23,7 @@ namespace RogueLike.Data.Entities
 
         private bool HasComponent(string nameOfComponent)
         {
-            return Components.Any(component => component.ComponentName == nameOfComponent);
+            return Components.ContainsKey(nameOfComponent);
         }
 
         public bool HasComponents(params Type[] componentTypes)
@@ -36,7 +40,11 @@ namespace RogueLike.Data.Entities
 
         public Component GetComponent(Type componentType)
         {
-            return Components.FirstOrDefault(component => component.ComponentName == componentType.Name);
+           return GetComponent(componentType.Name);
+        }
+        public Component GetComponent(string componentName)
+        {
+            return Components[componentName];
         }
     }
 }

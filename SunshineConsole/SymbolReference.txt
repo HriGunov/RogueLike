@@ -1,0 +1,3 @@
+﻿The ascii sprite is bad on a DwarfFortress tile set
+
+Use http://dwarffortresswiki.org/index.php/Character_table as a refrence to what value of the  extended table represents what

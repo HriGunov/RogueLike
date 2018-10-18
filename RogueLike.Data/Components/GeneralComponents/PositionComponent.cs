@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RogueLike.Data.Components.Abstract;
 
 namespace RogueLike.Data.Components.GeneralComponents
 {
-    class PositionComponent
+    public class PositionComponent : Component
     {
         public PositionComponent()
         {

@@ -1,4 +1,6 @@
 ﻿using RogueLike.Data.Entities;
+using RogueLike.Data.Abstract;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace RogueLike.Data
 {
-    class EntityManager
+    public class EntityManager : IEntityManager
     {
         public List<Entity> Entities { get; set; }
 
-        ICollection<Entity> GetEntitiesWithComponent(Type typeOfComponent)
+        public ICollection<Entity> GetEntitiesWithComponent(params Type[] componentTypes)
         {
             List<Entity> matchingEntities = new List<Entity>();
             foreach (var entity in Entities)
             {
-                if (entity.HasComponent(typeOfComponent))
+                if (entity.HasComponents(componentTypes))
                 {
                     matchingEntities.Add(entity);
                 }

@@ -3,19 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RogueLike.Data.Components.Abstract;
 
-namespace Engine
+namespace RogueLike.Data.Components
 {
-    public class Engine
+    public class IsTileComponent : Component
     {
-        public Engine()
-        {
-
-        }
-
-        public void Run()
-        {
-
-        }
     }
 }
