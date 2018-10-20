@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RogueLike.Data.Components.GeneralComponents;
-using SunshineConsole;
+﻿using RogueLike.Data.Components.GeneralComponents;
 
 namespace RogueLike.Core.Systems.CameraSystem
 {
     class Camera
     {
         private PositionComponent position;
-        private  int width;
+        private int width;
 
-        public Camera(PositionComponent position,int Width)
+        public Camera(PositionComponent position, int Width)
         {
-            this.width = Width;
+            width = Width;
             this.position = position;
         }
 
@@ -41,9 +35,37 @@ namespace RogueLike.Core.Systems.CameraSystem
 
         public int Width => width;
 
-        public Symbol[][] GetCurrentView()
+        public PositionComponent Position
         {
-            throw new NotImplementedException();
+            get { return position; }
+        }
+
+        public char[][] GetCurrentView(MapSystem.MapSystem map)
+        {
+            char[][] view = new char[width][];
+            for (int i = 0; i < width; i++)
+            {
+                view[i] = new char[width];
+            }
+
+            int yOffSet = position.YCoord - width / 2;
+            int xOffSet = position.XCoord - width / 2;
+
+            var yInLocalCoords =    yOffSet - map.TopLeftCorner.YCoord;
+            var xInLocalCoords = xOffSet - map.TopLeftCorner.XCoord;
+
+             
+
+                for (int y = 0; y < width; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        view[y][x] = map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].VisualizationComponent.AsChar;
+                    }
+                }
+            
+
+            return view;
         }
     }
 }

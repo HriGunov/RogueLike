@@ -12,5 +12,8 @@ namespace RogueLike.Core.Systems.ChunkingSystem
         int WidthOfChunks { get; }
         ICollection<Entity>[][] Chunks { get; }
         PositionComponent TopLeftCorner { get; }
+        void TrackPosition(PositionComponent position);
+        bool CenterHasChanged { get; set; }
+        ChunkingSystem.Chunk PositionInChunk(PositionComponent position);
     }
 }

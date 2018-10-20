@@ -11,7 +11,7 @@ namespace RogueLike.Data
 {
     public class EntityManager : IEntityManager
     {
-        public List<Entity> Entities { get; set; }
+        public List<Entity> Entities { get; set; }= new List<Entity>();
 
         public ICollection<Entity> GetEntitiesWithComponent(params Type[] componentTypes)
         {

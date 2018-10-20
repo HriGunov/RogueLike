@@ -7,11 +7,18 @@ using RogueLike.Data.Components.GeneralComponents;
 
 namespace RogueLike.Data.Entities
 {
-    class WallTileEntity : TileEntity
+    public class WallTileEntity : TileEntity
     {
-        public WallTileEntity()
+
+        public WallTileEntity(int yCoord = 0, int xCoord = 0) : this(new PositionComponent(yCoord, xCoord))
+        {
+            
+        }
+
+        public WallTileEntity(PositionComponent position) : base(position)
         {
             VisualizationComponent.AsChar = '#';
         }
+ 
     }
 }

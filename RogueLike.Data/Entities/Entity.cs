@@ -10,7 +10,7 @@ namespace RogueLike.Data.Entities
 {
     public class Entity
     {
-        public Dictionary<string,Component> Components { get; set; }
+        public Dictionary<string,Component> Components { get; set; } = new Dictionary<string, Component>();
 
         public void AddComponent(Component component)
         {

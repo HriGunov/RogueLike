@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using RogueLike.Core.Systems.ChunkingSystem;
+using RogueLike.Core.Systems.MapSystem;
 using RogueLike.Data;
 using RogueLike.Data.Abstract;
 
@@ -17,8 +18,12 @@ namespace RogueLike.Core.Injections
             builder.RegisterType<Engine>().AsSelf().SingleInstance();
             builder.RegisterType<EntityManager>().As<IEntityManager>().SingleInstance();
             builder.RegisterType<ChunkingSystem>().As<IChunkingSystem>().SingleInstance();
+            builder.RegisterType<MapSystem>().AsSelf().SingleInstance();
 
             
+
+
+
 
             base.Load(builder);
 
