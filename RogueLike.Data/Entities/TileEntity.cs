@@ -20,7 +20,7 @@ namespace RogueLike.Data.Entities
             AddComponent(new IsTileComponent());
             AddComponent(position);
             AddComponent(new VisualizationComponent('!'));
-            AddComponent(new IsWalkableComponent());
+            
         }
         public TileEntity(int yCoord =0,int xCoord =0) : this(new PositionComponent(yCoord,xCoord))
         {

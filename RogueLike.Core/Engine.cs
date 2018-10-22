@@ -9,6 +9,7 @@ using SunshineConsole;
 using System;
 using System.Diagnostics;
 using System.IO;
+using RogueLike.Core.Systems.MovementSystem;
 
 namespace RogueLike.Core
 {
@@ -35,6 +36,7 @@ namespace RogueLike.Core
            
             mapSystem.InitializeChunking(new PositionComponent(0,0));
             mapSystem.InitializeLocalMap();
+            var movementSystem = new Movement(mapSystem);
             var camera = new Camera(cameraPosition, 31);
 
             stopWatch.Stop();
@@ -45,23 +47,38 @@ namespace RogueLike.Core
             {
                 if (gameConsole.KeyPressed)
                 {
+                    var newPos = new PositionComponent(cameraPosition.YCoord, cameraPosition.XCoord);
                     //Input
                     switch (gameConsole.GetKey())
                     {
                         case Key.Down:
-                            cameraPosition.YCoord++;
+                            newPos.YCoord++;
                             break;
                         case Key.Up:
-                            cameraPosition.YCoord--;
+                            newPos.YCoord--;
                             break;
                         case Key.Left:
-                            cameraPosition.XCoord--;
+                            newPos.XCoord--;
                             break;
                         case Key.Right:
-                            cameraPosition.XCoord++;
+                            newPos.XCoord++;
                             break;
 
                     }
+
+                      
+                    
+                    stopWatch.Start();
+                    if (movementSystem.CanBeMovedTo(newPos))
+                    {
+                        camera.Position.YCoord = newPos.YCoord;
+                        camera.Position.XCoord = newPos.XCoord;
+                    }
+                    stopWatch.Stop();
+                    Console.Write("CanMove:");
+                    Console.WriteLine($"ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
+                    stopWatch.Reset();
+
                     stopWatch.Start();
 
                      

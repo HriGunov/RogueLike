@@ -14,6 +14,7 @@ namespace RogueLike.Data.Entities
         public FloorTileEntity(PositionComponent position) : base(position)
         {
             VisualizationComponent.AsChar = '.';
+            AddComponent(new IsWalkableComponent());
 
         }
 

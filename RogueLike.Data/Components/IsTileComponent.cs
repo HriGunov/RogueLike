@@ -9,5 +9,6 @@ namespace RogueLike.Data.Components
 {
     public class IsTileComponent : Component
     {
+
     }
 }

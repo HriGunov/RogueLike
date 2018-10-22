@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace RogueLike.Core.Systems.MapSystem
 {
-    class MapSystem
+    public class MapSystem
     {
 
         public enum Chunk
