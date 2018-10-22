@@ -9,7 +9,7 @@ namespace RogueLike.Data.Components.GeneralComponents
 
         }
 
-        public PositionComponent(int yCoord, int xCoord)
+           public PositionComponent(int yCoord, int xCoord)
         {
             YCoord = yCoord;
             XCoord = xCoord;

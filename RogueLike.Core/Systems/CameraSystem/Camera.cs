@@ -51,19 +51,27 @@ namespace RogueLike.Core.Systems.CameraSystem
             int yOffSet = position.YCoord - width / 2;
             int xOffSet = position.XCoord - width / 2;
 
-            var yInLocalCoords =    yOffSet - map.TopLeftCorner.YCoord;
+            var yInLocalCoords = yOffSet - map.TopLeftCorner.YCoord;
             var xInLocalCoords = xOffSet - map.TopLeftCorner.XCoord;
 
-             
 
-                for (int y = 0; y < width; y++)
+
+            for (int y = 0; y < width; y++)
+            {
+                for (int x = 0; x < width; x++)
                 {
-                    for (int x = 0; x < width; x++)
+                    if (map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].VisualizationComponent != null)
                     {
                         view[y][x] = map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].VisualizationComponent.AsChar;
+
+                    }
+                    else
+                    {
+                        view[y][x] = '?';
                     }
                 }
-            
+            }
+
 
             return view;
         }

@@ -55,8 +55,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Systems\CameraSystem\Camera.cs" />
-    <Compile Include="Systems\ChunkingSystem\ChunkingSystem.cs" />
-    <Compile Include="Systems\ChunkingSystem\IChunkingSystem.cs" />
     <Compile Include="Systems\MapSystem\MapSystem.cs" />
   </ItemGroup>
   <ItemGroup>
