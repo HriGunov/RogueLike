@@ -50,13 +50,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComponentExtensions\PositionComponentExtensions.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="Injections\CoreModule.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Systems\CameraSystem\Camera.cs" />
-    <Compile Include="Systems\MapSystem\MapSystem.cs" />
-    <Compile Include="Systems\MovementSystem\Movement.cs" />
+    <Compile Include="Systems\DrawingSystem\DrawingSystem.cs" />
+    <Compile Include="Systems\WorldSystem\WorldSystem.cs" />
+    <Compile Include="Systems\MovementSystem\MovementSystem.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

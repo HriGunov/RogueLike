@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
-using RogueLike.Core.Systems.MapSystem;
+using RogueLike.Core.Systems.DrawingSystem;
+using RogueLike.Core.Systems.MovementSystem;
+using RogueLike.Core.Systems.WorldSystem;
 using RogueLike.Data;
 using RogueLike.Data.Abstract;
 
@@ -16,9 +18,11 @@ namespace RogueLike.Core.Injections
         {
             builder.RegisterType<Engine>().AsSelf().SingleInstance();
             builder.RegisterType<EntityManager>().As<IEntityManager>().SingleInstance();
-            builder.RegisterType<MapSystem>().AsSelf().SingleInstance();
+            builder.RegisterType<WorldSystem>().AsSelf().SingleInstance();
+            builder.RegisterType<MovementSystem>().AsSelf().SingleInstance();
+            builder.RegisterType<DrawingSystem>().AsSelf().SingleInstance();
 
-            
+
 
 
 

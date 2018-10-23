@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics;
 using OpenTK.Input;
 using RogueLike.Core.Systems.CameraSystem;
-using RogueLike.Core.Systems.MapSystem;
+using RogueLike.Core.Systems.WorldSystem;
 using RogueLike.Data.Abstract;
 using RogueLike.Data.Components.GeneralComponents;
 using RogueLike.Data.Entities;
@@ -9,6 +9,8 @@ using SunshineConsole;
 using System;
 using System.Diagnostics;
 using System.IO;
+using RogueLike.Core.ComponentExtensions;
+using RogueLike.Core.Systems.DrawingSystem;
 using RogueLike.Core.Systems.MovementSystem;
 
 namespace RogueLike.Core
@@ -16,15 +18,18 @@ namespace RogueLike.Core
     class Engine
     {
         private readonly IEntityManager entityManager;
-        private readonly MapSystem mapSystem;
+        private readonly WorldSystem worldSystem;
+        private readonly MovementSystem movementSystem;
+        private readonly DrawingSystem drawingSystem;
         private readonly int ConsoleHeigth =30;
         private readonly int ConsoleWidth =70;
 
-        public Engine(IEntityManager entityManager, MapSystem mapSystem)
+        public Engine(IEntityManager entityManager, WorldSystem worldSystem, MovementSystem movementSystem, DrawingSystem drawingSystem)
         {
             this.entityManager = entityManager;
-           
-            this.mapSystem = mapSystem;
+            this.worldSystem = worldSystem;
+            this.movementSystem = movementSystem;
+            this.drawingSystem = drawingSystem;
         }
 
         public void Run()
@@ -32,12 +37,9 @@ namespace RogueLike.Core
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             PositionComponent cameraPosition = LoadMapEntitiesAndReturnPlayer();
-            var gameConsole = new ConsoleWindow(ConsoleHeigth, ConsoleWidth, "RogueLike");
-           
-            mapSystem.InitializeLocalMap(new PositionComponent(0, 0));
-            var movementSystem = new Movement(mapSystem);
+            var gameConsole = new ConsoleWindow(ConsoleHeigth, ConsoleWidth, "RogueLike"); 
             var camera = new Camera(cameraPosition, 31);
-
+            worldSystem.InitializeLocalMap(new PositionComponent(0, 0));
             stopWatch.Stop();
             Console.WriteLine("setup");
             Console.WriteLine($"ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
@@ -46,21 +48,21 @@ namespace RogueLike.Core
             {
                 if (gameConsole.KeyPressed)
                 {
-                    var newPos = new PositionComponent(cameraPosition.YCoord, cameraPosition.XCoord);
+                    PositionComponent newPos = camera.Position.GetCopy();
                     //Input
                     switch (gameConsole.GetKey())
                     {
                         case Key.Down:
-                            newPos.YCoord++;
+                            newPos.MoveBy(1, 0);
                             break;
                         case Key.Up:
-                            newPos.YCoord--;
+                            newPos.MoveBy(-1, 0);
                             break;
                         case Key.Left:
-                            newPos.XCoord--;
+                            newPos.MoveBy(0, -1);
                             break;
                         case Key.Right:
-                            newPos.XCoord++;
+                            newPos.MoveBy(0, 1);
                             break;
 
                     }
@@ -70,8 +72,7 @@ namespace RogueLike.Core
                     stopWatch.Start();
                     if (movementSystem.CanBeMovedTo(newPos))
                     {
-                        camera.Position.YCoord = newPos.YCoord;
-                        camera.Position.XCoord = newPos.XCoord;
+                        camera.Position.MoveTo(newPos); 
                     }
                     stopWatch.Stop();
                     Console.Write("CanMove:");
@@ -81,32 +82,17 @@ namespace RogueLike.Core
                     stopWatch.Start();
 
                      
-                    mapSystem.CheckAndMoveChunks(camera.Position);
+                    worldSystem.CheckAndMoveChunks(camera.Position);
 
-                    var view = camera.GetCurrentView(mapSystem);
-                    view[view.Length / 2][view.Length / 2] = '@';
-                    for (int y = 0; y < view.Length; y++)
-                    {
-                        for (int x = 0; x < view[y].Length; x++)
-                        {
-                            if (view[y][x] != '!')
-                            {
-                                gameConsole.Write(y, x, view[y][x], Color4.White);
-
-                            }
-                            else
-                            {
-                                gameConsole.Write(y, x, view[y][x], Color4.Red);
-                            }
-
-                        }
-                    }
+                    var view = camera.GetCurrentView(worldSystem);
+                    drawingSystem.Render(gameConsole, view);
+                    
                     stopWatch.Stop();
                     Console.WriteLine($"ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
                     stopWatch.Reset();
                     gameConsole.Write(0,40,$"CameraPos Y:{camera.Position.YCoord},X:{camera.Position.XCoord}",Color4.White);
-                    gameConsole.Write(1, 40, $"TopLeftChunk Y:{mapSystem.TopLeftCorner.YCoord},X:{mapSystem.TopLeftCorner.XCoord}", Color4.White);
-                    gameConsole.Write(2, 40, $"Current Chunk Y:{mapSystem.PositionInChunk(cameraPosition).ToString()}", Color4.White);
+                    gameConsole.Write(1, 40, $"TopLeftChunk Y:{worldSystem.TopLeftCorner.YCoord},X:{worldSystem.TopLeftCorner.XCoord}", Color4.White);
+                    gameConsole.Write(2, 40, $"Current Chunk Y:{worldSystem.PositionInChunk(cameraPosition).ToString()}", Color4.White);
 
 
                 }

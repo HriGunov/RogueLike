@@ -7,25 +7,25 @@ using RogueLike.Data.Components.GeneralComponents;
 
 namespace RogueLike.Core.Systems.MovementSystem
 {
-    public class Movement
+    public class MovementSystem
     {
-        private readonly MapSystem.MapSystem map;
+        private readonly WorldSystem.WorldSystem world;
 
-        public Movement(MapSystem.MapSystem map)
+        public MovementSystem(WorldSystem.WorldSystem world)
         {
-            this.map = map;
+            this.world = world;
         }
 
         public bool CanBeMovedTo(int positionY, int positionX)
         {
-            int yLocal = positionY - map.TopLeftCorner.YCoord;
-            int xLocal = positionX - map.TopLeftCorner.XCoord;
+            int yLocal = positionY - world.TopLeftCorner.YCoord;
+            int xLocal = positionX - world.TopLeftCorner.XCoord;
 
 
-            var walkablePosition = map.LocalMap[yLocal][xLocal]
+            var walkablePosition = world.LocalMap[yLocal][xLocal]
                 .Any(entity => entity.HasComponents(typeof(IsWalkableComponent)));
 
-            var notBlockedPosition = !map.LocalMap[yLocal][xLocal]
+            var notBlockedPosition = !world.LocalMap[yLocal][xLocal]
                 .Any(entity => entity.HasComponents(typeof(MovementBlockingComponent)));
 
             return walkablePosition && notBlockedPosition;

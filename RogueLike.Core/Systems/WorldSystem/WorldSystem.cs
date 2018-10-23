@@ -4,9 +4,9 @@ using RogueLike.Data.Entities;
 using System;
 using System.Collections.Generic;
 
-namespace RogueLike.Core.Systems.MapSystem
+namespace RogueLike.Core.Systems.WorldSystem
 {
-    public class MapSystem
+    public class WorldSystem
     {
 
         public enum Chunk
@@ -17,7 +17,7 @@ namespace RogueLike.Core.Systems.MapSystem
         private readonly IEntityManager entityManager;
         private PositionComponent topLeftCorner;
         private readonly int widthOfChunks;
-        public MapSystem(IEntityManager entityManager, int widthOfChunks = 50)
+        public WorldSystem(IEntityManager entityManager, int widthOfChunks = 50)
         {
             if (entityManager != null)
             {
@@ -29,6 +29,7 @@ namespace RogueLike.Core.Systems.MapSystem
             }
 
             this.widthOfChunks = widthOfChunks;
+            InitializeLocalMap(new PositionComponent(0, 0));
         }
 
         #region Properties
@@ -272,7 +273,7 @@ namespace RogueLike.Core.Systems.MapSystem
         public void CheckAndMoveChunks(PositionComponent position)
         {
             var copyOfPosition = new PositionComponent(position.YCoord, position.XCoord);
-            bool hasMoved = false;
+
             var inChunk = PositionInChunk(position);
             if (inChunk == Chunk.None)
             {
@@ -285,8 +286,7 @@ namespace RogueLike.Core.Systems.MapSystem
             }
             inChunk = PositionInChunk(position);
             while (Chunk.Center != inChunk)
-            {
-
+            { 
                 ChangeCenterChunk(inChunk);
                 inChunk = PositionInChunk(position);
             }

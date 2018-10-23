@@ -41,7 +41,7 @@ namespace RogueLike.Core.Systems.CameraSystem
             get { return position; }
         }
 
-        public char[][] GetCurrentView(MapSystem.MapSystem map)
+        public char[][] GetCurrentView(WorldSystem.WorldSystem world)
         {
             char[][] view = new char[width][];
             for (int i = 0; i < width; i++)
@@ -52,8 +52,8 @@ namespace RogueLike.Core.Systems.CameraSystem
             int yOffSet = position.YCoord - width / 2;
             int xOffSet = position.XCoord - width / 2;
 
-            var yInLocalCoords = yOffSet - map.TopLeftCorner.YCoord;
-            var xInLocalCoords = xOffSet - map.TopLeftCorner.XCoord;
+            var yInLocalCoords = yOffSet - world.TopLeftCorner.YCoord;
+            var xInLocalCoords = xOffSet - world.TopLeftCorner.XCoord;
 
 
 
@@ -61,9 +61,9 @@ namespace RogueLike.Core.Systems.CameraSystem
             {
                 for (int x = 0; x < width; x++)
                 {
-                    if (map.LocalMap[yInLocalCoords + y][xInLocalCoords + x] != null)
+                    if (world.LocalMap[yInLocalCoords + y][xInLocalCoords + x] != null)
                     {
-                        var entitiesToBeVisualizedAtPos = map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].
+                        var entitiesToBeVisualizedAtPos = world.LocalMap[yInLocalCoords + y][xInLocalCoords + x].
                             FirstOrDefault(e => e.HasComponent(typeof(VisualizationComponent)));
 
                         if (entitiesToBeVisualizedAtPos == null)
