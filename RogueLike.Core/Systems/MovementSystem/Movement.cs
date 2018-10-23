@@ -18,27 +18,17 @@ namespace RogueLike.Core.Systems.MovementSystem
 
         public bool CanBeMovedTo(int positionY, int positionX)
         {
-            int yChunk = (positionY - map.TopLeftCorner.YCoord) / map.WidthOfChunks;
-            int xChunk = (positionX - map.TopLeftCorner.XCoord) / map.WidthOfChunks;
-            return map.Chunks[yChunk][xChunk]
-                .Where(ent => ent.HasComponents(typeof(PositionComponent), typeof(IsWalkableComponent))).Any(
-                    e =>
-                    {
-                        var pos = e.GetComponent(typeof(PositionComponent)) as PositionComponent;
-                        if (pos.YCoord != positionY)
-                        {
-                            return false;
-                        }
+            int yLocal = positionY - map.TopLeftCorner.YCoord;
+            int xLocal = positionX - map.TopLeftCorner.XCoord;
 
-                        if (pos.XCoord != positionX)
-                        {
-                            return false;
 
-                        }
+            var walkablePosition = map.LocalMap[yLocal][xLocal]
+                .Any(entity => entity.HasComponents(typeof(IsWalkableComponent)));
 
-                        return true;
-                    });
-             
+            var notBlockedPosition = !map.LocalMap[yLocal][xLocal]
+                .Any(entity => entity.HasComponents(typeof(MovementBlockingComponent)));
+
+            return walkablePosition && notBlockedPosition;
         }
 
         public bool CanBeMovedTo(PositionComponent position)

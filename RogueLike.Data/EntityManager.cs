@@ -11,12 +11,24 @@ namespace RogueLike.Data
 {
     public class EntityManager : IEntityManager
     {
-        public List<Entity> Entities { get; set; }= new List<Entity>();
+        public List<Entity> NonWorldEntities { get; set; } = new List<Entity>();
 
-        public ICollection<Entity> GetEntitiesWithComponent(params Type[] componentTypes)
+        public ICollection<Entity> GetWorldEntitiesWithComponent(params Type[] componentTypes)
+        {
+            return GetEntitiesWithComponents(WorldEntities, componentTypes);
+        }
+
+        public ICollection<Entity> GetNonWorldEntitiesWithComponent(params Type[] componentTypes)
+        {
+          return  GetEntitiesWithComponents(NonWorldEntities, componentTypes);
+        }
+
+        public List<Entity> WorldEntities { get; set; }= new List<Entity>(); 
+
+        private ICollection<Entity> GetEntitiesWithComponents(IEnumerable<Entity> targetCollection,params Type[] componentTypes)
         {
             List<Entity> matchingEntities = new List<Entity>();
-            foreach (var entity in Entities)
+            foreach (var entity in targetCollection)
             {
                 if (entity.HasComponents(componentTypes))
                 {

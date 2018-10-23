@@ -1,4 +1,5 @@
-﻿using RogueLike.Data.Components.GeneralComponents;
+﻿using System.Linq;
+using RogueLike.Data.Components.GeneralComponents;
 
 namespace RogueLike.Core.Systems.CameraSystem
 {
@@ -60,10 +61,23 @@ namespace RogueLike.Core.Systems.CameraSystem
             {
                 for (int x = 0; x < width; x++)
                 {
-                    if (map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].VisualizationComponent != null)
+                    if (map.LocalMap[yInLocalCoords + y][xInLocalCoords + x] != null)
                     {
-                        view[y][x] = map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].VisualizationComponent.AsChar;
+                        var entitiesToBeVisualizedAtPos = map.LocalMap[yInLocalCoords + y][xInLocalCoords + x].
+                            FirstOrDefault(e => e.HasComponent(typeof(VisualizationComponent)));
 
+                        if (entitiesToBeVisualizedAtPos == null)
+                        {
+                            view[y][x] = ' ';
+                        }
+                        else
+                        {
+                            var visualization = entitiesToBeVisualizedAtPos.GetComponent(
+                                typeof(VisualizationComponent)) as VisualizationComponent;
+
+                            view[y][x] = visualization.AsChar;
+                        }
+                      
                     }
                     else
                     {

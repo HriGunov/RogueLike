@@ -1,5 +1,4 @@
 ﻿using RogueLike.Data.Abstract;
-using RogueLike.Data.Components;
 using RogueLike.Data.Components.GeneralComponents;
 using RogueLike.Data.Entities;
 using System;
@@ -14,10 +13,9 @@ namespace RogueLike.Core.Systems.MapSystem
         {
             TopLeft, TopMiddle, TopRight, MiddleLeft, Center, MiddleRight, BottomLeft, BottomMiddle, BottomRight, None
         }
-        private TileEntity[][] localMap;
+        private List<Entity>[][] localMap;
         private readonly IEntityManager entityManager;
         private PositionComponent topLeftCorner;
-        public ICollection<Entity>[][] chunks;
         private readonly int widthOfChunks;
         public MapSystem(IEntityManager entityManager, int widthOfChunks = 50)
         {
@@ -35,7 +33,7 @@ namespace RogueLike.Core.Systems.MapSystem
 
         #region Properties
 
-        public TileEntity[][] LocalMap
+        public List<Entity>[][] LocalMap
         {
             get { return localMap; }
         }
@@ -45,28 +43,28 @@ namespace RogueLike.Core.Systems.MapSystem
 
         }
 
-        public ICollection<Entity>[][] Chunks
-        {
-            get { return chunks; }
-        }
-
         public PositionComponent TopLeftCorner
         {
             get { return topLeftCorner; }
             set { topLeftCorner = value; }
         }
-        public bool CenterHasChanged { get; set; }
+        
         #endregion
 
         /// <summary>
         /// Initializes LocalMap
         /// </summary>
-        public void InitializeLocalMap()
+        public void InitializeLocalMap(PositionComponent centerOfWorld)
         {
-            localMap = new TileEntity[WidthOfChunks * 3][];
+            topLeftCorner = centerOfWorld;
+            localMap = new List<Entity>[WidthOfChunks * 3][];
             for (int y = 0; y < WidthOfChunks * 3; y++)
             {
-                localMap[y] = new TileEntity[WidthOfChunks * 3];
+                localMap[y] = new List<Entity>[WidthOfChunks * 3];
+                for (int x = 0; x < WidthOfChunks * 3; x++)
+                {
+                    localMap[y][x] = new List<Entity>();
+                }
             }
 
 
@@ -74,42 +72,48 @@ namespace RogueLike.Core.Systems.MapSystem
             {
                 for (int xChunk = 0; xChunk < 3; xChunk++)
                 {
-                    UpdateLocalMapWithChunk(yChunk, xChunk);
+                    LoadAndUpdateLocalMapChunk(yChunk, xChunk);
                 }
             }
 
         }
+
         public void ClearLocalMap()
         {
-            for (int y = 0; y < WidthOfChunks * 3; y++)
+            for (int y = 0; y <  3; y++)
             {
-                localMap[y] = new TileEntity[WidthOfChunks * 3];
-                for (int x = 0; x < WidthOfChunks * 3; x++)
+
+                for (int x = 0; x < 3; x++)
                 {
-                    localMap[y][x] = new TileEntity(TopLeftCorner.YCoord + y, TopLeftCorner.XCoord + x);
+                    ClearChunkOfLocalMap(y, x);
                 }
 
             }
         }
-
-        public void UpdateLocalMapWithChunk(int yOfChunk, int xOfChunk)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="yOfChunk">TopleftCorner of target Chunk</param>
+        /// <param name="xOfChunk">TopleftCorner of target Chunk</param>
+        public void LoadAndUpdateLocalMapChunk(int yOfChunk, int xOfChunk)
         {
             ClearChunkOfLocalMap(yOfChunk, xOfChunk);
-            foreach (var entity in chunks[yOfChunk][xOfChunk])
+
+
+            var chunk = LoadChunk(topLeftCorner.YCoord + yOfChunk * widthOfChunks,
+                topLeftCorner.XCoord + xOfChunk * widthOfChunks);
+
+            var positionType = typeof(PositionComponent).Name;
+
+            foreach (var entity in chunk)
             {
-                if (entity.HasComponents(typeof(IsTileComponent)))
-                {
-                    var asTile = entity as TileEntity;
-                    int localXCoord = asTile.PositionComponent.XCoord - TopLeftCorner.XCoord;
-                    int localYCoord = asTile.PositionComponent.YCoord - TopLeftCorner.YCoord;
-                    if (asTile.VisualizationComponent == null)
-                    {
-                        Console.WriteLine("fk");
 
+                var entityPosition = entity.GetComponent(positionType) as PositionComponent;
+                int localXCoord = entityPosition.XCoord - TopLeftCorner.XCoord;
+                int localYCoord = entityPosition.YCoord - TopLeftCorner.YCoord;
 
-                    }
-                    localMap[localYCoord][localXCoord] = asTile;
-                }
+                localMap[localYCoord][localXCoord].Add(entity);
+
             }
         }
 
@@ -125,30 +129,16 @@ namespace RogueLike.Core.Systems.MapSystem
 
                 for (int x = 0; x < WidthOfChunks; x++)
                 {
-                    localMap[yChunk * widthOfChunks + y][xChunk * widthOfChunks + x] = new TileEntity(TopLeftCorner.YCoord + yChunk * widthOfChunks + y, TopLeftCorner.XCoord + xChunk * widthOfChunks + x);
+                    localMap[yChunk * widthOfChunks + y][xChunk * widthOfChunks + x] = new List<Entity>();
                 }
 
-            }
-        }
-
-        public void InitializeChunking(PositionComponent chunkTopLeftCorner)
-        {
-            topLeftCorner = chunkTopLeftCorner;
-            chunks = new List<Entity>[3][];
-            for (int y = 0; y < 3; y++)
-            {
-                chunks[y] = new List<Entity>[3];
-                for (int x = 0; x < 3; x++)
-                {
-                    chunks[y][x] = LoadChunk(topLeftCorner.YCoord + y * widthOfChunks, topLeftCorner.XCoord + x * widthOfChunks);
-                }
             }
         }
 
         public ICollection<Entity> LoadChunk(int YtopLeftC, int XtopLeftC)
         {
             var positionType = typeof(PositionComponent);
-            var positionEntities = entityManager.GetEntitiesWithComponent(positionType);
+            var positionEntities = entityManager.GetWorldEntitiesWithComponent(positionType);
             var entitiesInChunk = new List<Entity>();
             foreach (var entity in positionEntities)
             {
@@ -261,10 +251,7 @@ namespace RogueLike.Core.Systems.MapSystem
 
         public void MoveChunk(int yChunkToOveride, int xChunkToOveride, int yChunkToMove, int xChunkToMove)
         {
-            //Move chuck 
-            chunks[yChunkToOveride][xChunkToOveride] = chunks[yChunkToMove][xChunkToMove];
-
-
+            
             //Moves local map
             for (int y = 0; y < widthOfChunks; y++)
             {
@@ -333,8 +320,7 @@ namespace RogueLike.Core.Systems.MapSystem
                         MoveCenterToMiddleRightChunk();
                         break;
                 }
-
-                CenterHasChanged = true;
+               
             }
 
         }
@@ -348,18 +334,15 @@ namespace RogueLike.Core.Systems.MapSystem
             MoveChunk(1, 2, 0, 1);
             MoveChunk(2, 1, 1, 0);
             MoveChunk(1, 1, 0, 0);
-              
+
 
             for (int i = 0; i < 3; i++)
             {
-                chunks[0][i] = LoadChunk(TopLeftCorner.YCoord, TopLeftCorner.XCoord + widthOfChunks * i);
-                UpdateLocalMapWithChunk(0,i);
+                LoadAndUpdateLocalMapChunk(0, i);
             }
-            chunks[1][0] = LoadChunk(TopLeftCorner.YCoord + widthOfChunks, TopLeftCorner.XCoord);
 
-            UpdateLocalMapWithChunk(1, 0);
-            chunks[2][0] = LoadChunk(TopLeftCorner.YCoord + widthOfChunks * 2, TopLeftCorner.XCoord);
-            UpdateLocalMapWithChunk(2, 0);
+            LoadAndUpdateLocalMapChunk(1, 0);
+            LoadAndUpdateLocalMapChunk(2, 0);
 
         }
 
@@ -378,9 +361,7 @@ namespace RogueLike.Core.Systems.MapSystem
 
             for (int i = 0; i < 3; i++)
             {
-                var foundEntities = LoadChunk(TopLeftCorner.YCoord, TopLeftCorner.XCoord + widthOfChunks * i);
-                chunks[0][i] = foundEntities;
-                UpdateLocalMapWithChunk(0, i);
+                LoadAndUpdateLocalMapChunk(0, i);
             }
         }
         private void MoveCenterToBottomMiddleChunk()
@@ -401,8 +382,7 @@ namespace RogueLike.Core.Systems.MapSystem
 
             for (int i = 0; i < 3; i++)
             {
-                chunks[2][i] = LoadChunk(TopLeftCorner.YCoord + widthOfChunks * 2, TopLeftCorner.XCoord + widthOfChunks * i);
-                UpdateLocalMapWithChunk(2, i);
+                LoadAndUpdateLocalMapChunk(2, i);
             }
         }
 
@@ -421,8 +401,7 @@ namespace RogueLike.Core.Systems.MapSystem
 
             for (int i = 0; i < 3; i++)
             {
-                chunks[i][0] = LoadChunk(TopLeftCorner.YCoord + widthOfChunks * i, TopLeftCorner.XCoord);
-                UpdateLocalMapWithChunk(i, 0);
+                LoadAndUpdateLocalMapChunk(i, 0);
             }
         }
         private void MoveCenterToMiddleRightChunk()
@@ -439,8 +418,7 @@ namespace RogueLike.Core.Systems.MapSystem
 
             for (int i = 0; i < 3; i++)
             {
-                chunks[i][2] = LoadChunk(TopLeftCorner.YCoord + widthOfChunks * i, TopLeftCorner.XCoord + 2 * widthOfChunks);
-                UpdateLocalMapWithChunk(i, 2);
+                LoadAndUpdateLocalMapChunk(i, 2);
             }
         }
         #endregion

@@ -34,8 +34,7 @@ namespace RogueLike.Core
             PositionComponent cameraPosition = LoadMapEntitiesAndReturnPlayer();
             var gameConsole = new ConsoleWindow(ConsoleHeigth, ConsoleWidth, "RogueLike");
            
-            mapSystem.InitializeChunking(new PositionComponent(0,0));
-            mapSystem.InitializeLocalMap();
+            mapSystem.InitializeLocalMap(new PositionComponent(0, 0));
             var movementSystem = new Movement(mapSystem);
             var camera = new Camera(cameraPosition, 31);
 
@@ -142,7 +141,7 @@ namespace RogueLike.Core
                                entityToAdd = new WallTileEntity(y, x);
                                break;
                     }
-                    entityManager.Entities.Add(entityToAdd);
+                    entityManager.WorldEntities.Add(entityToAdd);
                 }
             }
 

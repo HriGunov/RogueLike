@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\Abstract\Component.cs" />
+    <Compile Include="Components\GeneralComponents\MovementBlockingComponent.cs" />
     <Compile Include="Components\GeneralComponents\PositionComponent.cs" />
     <Compile Include="Components\GeneralComponents\VisualizationComponent.cs" />
     <Compile Include="Components\GeneralComponents\WalkableComponent.cs" />
