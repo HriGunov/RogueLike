@@ -18,6 +18,8 @@ namespace RogueLike.Data.Entities
         public WallTileEntity(PositionComponent position) : base(position)
         {
             VisualizationComponent.AsChar = '#';
+            this.AddComponent(new SightBlockingComponent());
+            
         }
  
     }

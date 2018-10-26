@@ -44,5 +44,11 @@ namespace RogueLike.Core.ComponentExtensions
             return thisComponent;  
         }
 
+        public static PositionComponent ToLocalCoordiantes(this PositionComponent position,
+            PositionComponent topLeftCornerOfLocalArea)
+        {
+            return  new PositionComponent(position.YCoord - topLeftCornerOfLocalArea.YCoord,position.XCoord - topLeftCornerOfLocalArea.XCoord);
+        }
+
     }
 }

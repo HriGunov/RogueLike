@@ -44,6 +44,8 @@
     <Compile Include="Components\Abstract\Component.cs" />
     <Compile Include="Components\GeneralComponents\MovementBlockingComponent.cs" />
     <Compile Include="Components\GeneralComponents\PositionComponent.cs" />
+    <Compile Include="Components\GeneralComponents\SightBlockingComponent.cs" />
+    <Compile Include="Components\GeneralComponents\VisibilityComponent.cs" />
     <Compile Include="Components\GeneralComponents\VisualizationComponent.cs" />
     <Compile Include="Components\GeneralComponents\WalkableComponent.cs" />
     <Compile Include="Components\IsTileComponent.cs" />

@@ -10,6 +10,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using RogueLike.Core.ComponentExtensions;
+using RogueLike.Core.Systems;
 using RogueLike.Core.Systems.DrawingSystem;
 using RogueLike.Core.Systems.MovementSystem;
 
@@ -21,15 +22,17 @@ namespace RogueLike.Core
         private readonly WorldSystem worldSystem;
         private readonly MovementSystem movementSystem;
         private readonly DrawingSystem drawingSystem;
+        private readonly VisionSystem visionSystem;
         private readonly int ConsoleHeigth =30;
         private readonly int ConsoleWidth =70;
 
-        public Engine(IEntityManager entityManager, WorldSystem worldSystem, MovementSystem movementSystem, DrawingSystem drawingSystem)
+        public Engine(IEntityManager entityManager, WorldSystem worldSystem, MovementSystem movementSystem, DrawingSystem drawingSystem,VisionSystem visionSystem)
         {
             this.entityManager = entityManager;
             this.worldSystem = worldSystem;
             this.movementSystem = movementSystem;
             this.drawingSystem = drawingSystem;
+            this.visionSystem = visionSystem;
         }
 
         public void Run()
@@ -38,7 +41,7 @@ namespace RogueLike.Core
             stopWatch.Start();
             PositionComponent cameraPosition = LoadMapEntitiesAndReturnPlayer();
             var gameConsole = new ConsoleWindow(ConsoleHeigth, ConsoleWidth, "RogueLike"); 
-            var camera = new Camera(cameraPosition, 31);
+            var camera = new Camera(cameraPosition, 31,visionSystem);
             worldSystem.InitializeLocalMap(new PositionComponent(0, 0));
             stopWatch.Stop();
             Console.WriteLine("setup");
@@ -83,12 +86,15 @@ namespace RogueLike.Core
 
                      
                     worldSystem.CheckAndMoveChunks(camera.Position);
+                    visionSystem.ClearMask();
+                    visionSystem.SetVisiblePositions(camera.Position,13);
 
-                    var view = camera.GetCurrentView(worldSystem);
+                    var view = camera.GetCurrentViewWithLight(worldSystem);
                     drawingSystem.Render(gameConsole, view);
                     
                     stopWatch.Stop();
-                    Console.WriteLine($"ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
+                    Console.Write("ViewMask:");
+                    Console.WriteLine($" ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
                     stopWatch.Reset();
                     gameConsole.Write(0,40,$"CameraPos Y:{camera.Position.YCoord},X:{camera.Position.XCoord}",Color4.White);
                     gameConsole.Write(1, 40, $"TopLeftChunk Y:{worldSystem.TopLeftCorner.YCoord},X:{worldSystem.TopLeftCorner.XCoord}", Color4.White);
@@ -121,7 +127,7 @@ namespace RogueLike.Core
                             break;
                         case '@':
                             playerPosition = new PositionComponent(y, x);
-                            entityToAdd = new WallTileEntity(y, x);
+                            entityToAdd = new FloorTileEntity(y, x);
                             break;
                            default:
                                entityToAdd = new WallTileEntity(y, x);
