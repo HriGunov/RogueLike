@@ -13,6 +13,8 @@ using RogueLike.Core.ComponentExtensions;
 using RogueLike.Core.Systems;
 using RogueLike.Core.Systems.DrawingSystem;
 using RogueLike.Core.Systems.MovementSystem;
+using RogueLike.Core.Systems.TimeTracking;
+using Autofac;
 
 namespace RogueLike.Core
 {
@@ -23,16 +25,20 @@ namespace RogueLike.Core
         private readonly MovementSystem movementSystem;
         private readonly DrawingSystem drawingSystem;
         private readonly VisionSystem visionSystem;
+        private readonly TimeTrackingSystem timeTrackingSystem;
+
         private readonly int ConsoleHeigth =30;
         private readonly int ConsoleWidth =70;
 
-        public Engine(IEntityManager entityManager, WorldSystem worldSystem, MovementSystem movementSystem, DrawingSystem drawingSystem,VisionSystem visionSystem)
+        public Engine(IEntityManager entityManager, WorldSystem worldSystem, MovementSystem movementSystem,
+            DrawingSystem drawingSystem,VisionSystem visionSystem,  TimeTrackingSystem timeTrackingSystem)
         {
             this.entityManager = entityManager;
             this.worldSystem = worldSystem;
             this.movementSystem = movementSystem;
             this.drawingSystem = drawingSystem;
             this.visionSystem = visionSystem;
+            this.timeTrackingSystem = timeTrackingSystem;
         }
 
         public void Run()
@@ -52,31 +58,40 @@ namespace RogueLike.Core
                 if (gameConsole.KeyPressed)
                 {
                     PositionComponent newPos = camera.Position.GetCopy();
+                    MovementDirection? moveDirection = null;
                     //Input
                     switch (gameConsole.GetKey())
                     {
                         case Key.Down:
-                            newPos.MoveBy(1, 0);
+                            moveDirection = MovementDirection.South;
                             break;
                         case Key.Up:
-                            newPos.MoveBy(-1, 0);
+                            moveDirection = MovementDirection.North;
+
                             break;
                         case Key.Left:
-                            newPos.MoveBy(0, -1);
+                            moveDirection = MovementDirection.West;
+
                             break;
                         case Key.Right:
-                            newPos.MoveBy(0, 1);
+                            moveDirection = MovementDirection.East;
                             break;
 
+                        
                     }
 
                       
                     
                     stopWatch.Start();
-                    if (movementSystem.CanBeMovedTo(newPos))
+                    if (moveDirection.HasValue)
                     {
-                        camera.Position.MoveTo(newPos); 
+                        if (movementSystem.CanBeMovedTo(camera.Position, moveDirection.Value))
+                        {
+                            movementSystem.Move(camera.Position, moveDirection.Value, 100);
+                        }
                     }
+                  
+
                     stopWatch.Stop();
                     Console.Write("CanMove:");
                     Console.WriteLine($"ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
@@ -89,6 +104,8 @@ namespace RogueLike.Core
                     visionSystem.ClearMask();
                     visionSystem.SetVisiblePositions(camera.Position,13);
 
+                    timeTrackingSystem.AdvanceTime(100);
+
                     var view = camera.GetCurrentViewWithLight(worldSystem);
                     drawingSystem.Render(gameConsole, view);
                     
@@ -97,8 +114,9 @@ namespace RogueLike.Core
                     Console.WriteLine($" ms:{stopWatch.ElapsedMilliseconds} ticks:{stopWatch.ElapsedTicks}");
                     stopWatch.Reset();
                     gameConsole.Write(0,40,$"CameraPos Y:{camera.Position.YCoord},X:{camera.Position.XCoord}",Color4.White);
-                    gameConsole.Write(1, 40, $"TopLeftChunk Y:{worldSystem.TopLeftCorner.YCoord},X:{worldSystem.TopLeftCorner.XCoord}", Color4.White);
-                    gameConsole.Write(2, 40, $"Current Chunk Y:{worldSystem.PositionInChunk(cameraPosition).ToString()}", Color4.White);
+                    gameConsole.Write(1, 40, $"TopLeftChunk Y:{worldSystem.TopLeftCorner.YCoord},X:{worldSystem.TopLeftCorner.XCoord}".PadRight(30), Color4.White);
+                    gameConsole.Write(2, 40, $"Current Chunk Y:{worldSystem.PositionInChunk(cameraPosition).ToString()}".PadRight(30), Color4.White);
+                    gameConsole.Write(3, 40, $"Current World Time: {timeTrackingSystem.CurrentTime}.".PadRight(30), Color4.White);
 
 
                 }
@@ -108,7 +126,7 @@ namespace RogueLike.Core
 
         public PositionComponent LoadMapEntitiesAndReturnPlayer()
         {
-            var mapPath = AppContext.BaseDirectory + "map.txt";
+            var mapPath = AppContext.BaseDirectory + "map";
             var mapLines = File.ReadAllLines(mapPath);
             PositionComponent playerPosition = null;
             for (int y = 0; y < mapLines.Length; y++)
@@ -118,6 +136,7 @@ namespace RogueLike.Core
                     Entity entityToAdd = null;
                     switch (mapLines[y][x])
                     {
+                      
                         case '#':
                             entityToAdd = new WallTileEntity(y, x);
                             break;
@@ -126,6 +145,7 @@ namespace RogueLike.Core
                             entityToAdd = new FloorTileEntity(y, x);
                             break;
                         case '@':
+                        case '!':
                             playerPosition = new PositionComponent(y, x);
                             entityToAdd = new FloorTileEntity(y, x);
                             break;

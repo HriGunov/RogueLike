@@ -7,6 +7,7 @@ using Autofac;
 using RogueLike.Core.Systems;
 using RogueLike.Core.Systems.DrawingSystem;
 using RogueLike.Core.Systems.MovementSystem;
+using RogueLike.Core.Systems.TimeTracking;
 using RogueLike.Core.Systems.WorldSystem;
 using RogueLike.Data;
 using RogueLike.Data.Abstract;
@@ -24,8 +25,11 @@ namespace RogueLike.Core.Injections
             builder.RegisterType<DrawingSystem>().AsSelf().SingleInstance();
             builder.RegisterType<MathSystem>().AsSelf().SingleInstance();
             builder.RegisterType<VisionSystem>().AsSelf().SingleInstance();
+            builder.RegisterType<TimeTrackingSystem>().AsSelf().SingleInstance();
 
             
+
+
 
 
 

@@ -1,4 +1,5 @@
-﻿using RogueLike.Data.Components.GeneralComponents;
+﻿using RogueLike.Core.Systems.MovementSystem;
+using RogueLike.Data.Components.GeneralComponents;
 
 namespace RogueLike.Core.ComponentExtensions
 {
@@ -27,7 +28,7 @@ namespace RogueLike.Core.ComponentExtensions
         }
 
         public static PositionComponent GetMovedByCopy(this PositionComponent thisComponent, int deltaY, int deltaX)
-        { 
+        {
             return thisComponent.GetCopy().MoveBy(deltaY, deltaX);
         }
 
@@ -40,15 +41,55 @@ namespace RogueLike.Core.ComponentExtensions
         public static PositionComponent MoveTo(this PositionComponent thisComponent, PositionComponent otherComponent)
         {
             thisComponent.YCoord = otherComponent.YCoord;
-            thisComponent.XCoord = otherComponent.XCoord; 
-            return thisComponent;  
+            thisComponent.XCoord = otherComponent.XCoord;
+            return thisComponent;
         }
 
         public static PositionComponent ToLocalCoordiantes(this PositionComponent position,
             PositionComponent topLeftCornerOfLocalArea)
         {
-            return  new PositionComponent(position.YCoord - topLeftCornerOfLocalArea.YCoord,position.XCoord - topLeftCornerOfLocalArea.XCoord);
+            return new PositionComponent(position.YCoord - topLeftCornerOfLocalArea.YCoord, position.XCoord - topLeftCornerOfLocalArea.XCoord);
         }
 
+        public static PositionComponent GetNewPositionByDirection(this PositionComponent position, MovementDirection direction)
+        {
+            var newPosition = position.GetCopy();
+            switch (direction)
+            {
+                case MovementDirection.North:
+                    newPosition.MoveBy(deltaY: -1, deltaX: 0);
+                    break;
+
+                case MovementDirection.West:
+                    newPosition.MoveBy(deltaY: 0, deltaX: -1);
+                    break;
+
+                case MovementDirection.South:
+                    newPosition.MoveBy(deltaY: 1, deltaX: 0);
+                    break;
+
+                case MovementDirection.East:
+                    newPosition.MoveBy(deltaY: 0, deltaX: 1);
+                    break;
+
+                case MovementDirection.NorthEast:
+                    newPosition.MoveBy(deltaY: -1, deltaX: 1);
+                    break;
+
+                case MovementDirection.NorthWest:
+                    newPosition.MoveBy(deltaY: -1, deltaX: -1);
+                    break;
+
+                case MovementDirection.SouthEast:
+                    newPosition.MoveBy(deltaY: 1, deltaX: 1);
+                    break;
+
+                case MovementDirection.SouthWest:
+                    newPosition.MoveBy(deltaY: 1, deltaX: -1);
+                    break;
+
+            }
+            return newPosition;
+        }
     }
 }
